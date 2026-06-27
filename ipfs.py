@@ -35,12 +35,27 @@ def pin_to_ipfs(data):
 def get_from_ipfs(cid,content_type="json"):
   assert isinstance(cid,str), f"get_from_ipfs accepts a cid in the form of a string"
 	
-  gateway_url = f"https://peach-main-dragonfly-79.mypinata.cloud/ipfs/{cid}"
+  gateways = [
+    "https://gateway.pinata.cloud/ipfs/",
+    "https://gateway.pinata.cloud/ipfs/",
+    "https://cloudflare-ipfs.com/ipfs/"
+  ]
+  
+  error = None
 
-  response = requests.get(gateway_url)
-  response.raise_for_status()
+  for gateway in gateways:
+    url = gateway + cid
 
-  data = response.json()
+    try:
+      response = requests.get(url)
+      response.raise_for_status()
+      
+      data = response.json()
 
-  assert isinstance(data,dict), f"get_from_ipfs should return a dict"
-  return data
+      assert isinstance(data,dict), f"get_from_ipfs should return a dict"
+      return data
+    
+    except Exception as e:
+      error = e
+
+  raise error
